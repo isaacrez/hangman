@@ -32,11 +32,11 @@ class GameManager
         print "You can't save yet! There's no game.\n\n"
       
       elsif request.start_with? 'load'
-        filename = request.split(' ')[1]
+        filename = request.split(' ')[1] || "default"
         filename.nil? ? load : load(filename)
       
       elsif request.start_with? 'del'
-        filename = request.split(' ')[1]
+        filename = request.split(' ')[1] || "default"
         delete filename
 
       elsif request == 'quit'
@@ -54,24 +54,22 @@ class GameManager
     unless save_names.length == 0
       print " - " + save_names.join("\n - ") + "\n"
     else
-      print "No save data found\n\n"
+      print "No save data found\n"
     end
   end
 
-  def self.save(filename="default")
+  def self.save(filename)
     GameManager.create_save_dir
     path = "saves/" + filename
-    if Dir.entries("saves").include?(filename)
-      File.open(path, "w") do |file|
-        Marshal.dump(@@current_game, file)
-      end
+    File.open(path, "w") do |file|
+      Marshal.dump(@@current_game, file)
     end
   end
 
-  def self.load(filename="default")
+  def self.load(filename)
     GameManager.create_save_dir
     path = "saves/" + filename
-    if Dir.entries("saves").include?(filename)
+    if File.exist? path
       File.open(path, "r") do |file|
         @@current_game = Marshal.load(file.read)
         @@current_game.take_guesses
@@ -79,10 +77,15 @@ class GameManager
     end
   end
 
-  def self.delete(filename="default")
+  def self.delete(filename)
     GameManager.create_save_dir
     path = "saves/" + filename
-    Dir.delete(path) if Dir.exist? path
+    if File.exist? path
+      File.delete(path)
+      print "Successfully deleted #{filename}\n\n"
+    else
+      print "#{filename} not found\n\n"
+    end
   end
 
   def self.create_save_dir
@@ -134,7 +137,7 @@ class Hangman
   end
 
   def save(line)
-    filename = line.split(' ')[1]
+    filename = line.split(' ')[1] || "default"
     print "Saved game to #{filename}\n\n"
     GameManager.save(filename)
   end
