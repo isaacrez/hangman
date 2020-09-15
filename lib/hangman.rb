@@ -107,7 +107,7 @@ class Hangman
     dictionary = File.read('dictionary.txt').split("\r\n")
     dictionary.filter! {|word| 5 < word.length && word.length < 12}
     index = rand(dictionary.length)
-    @word = dictionary[index]
+    @word = dictionary[index].downcase
   end
 
   def take_guesses
