@@ -33,7 +33,7 @@ class GameManager
       
       elsif request.start_with? 'load'
         filename = request.split(' ')[1]
-        load filename
+        filename.nil? ? load : load(filename)
       
       elsif request.start_with? 'del'
         filename = request.split(' ')[1]
@@ -58,29 +58,35 @@ class GameManager
     end
   end
 
-  def self.save(filename)
+  def self.save(filename="default")
     GameManager.create_save_dir
-    File.open("saves/" + filename, "w") do |file|
-      Marshal.dump(@@current_game, file)
+    path = "saves/" + filename
+    if Dir.entries("saves").include?(filename)
+      File.open(path, "w") do |file|
+        Marshal.dump(@@current_game, file)
+      end
     end
   end
 
-  def self.load(filename)
+  def self.load(filename="default")
     GameManager.create_save_dir
-    File.open("saves/" + filename, "r") do |file|
-      @@current_game = Marshal.load(file.read)
-      @@current_game.take_guesses
+    path = "saves/" + filename
+    if Dir.entries("saves").include?(filename)
+      File.open(path, "r") do |file|
+        @@current_game = Marshal.load(file.read)
+        @@current_game.take_guesses
+      end
     end
   end
 
-  def self.delete(filename)
+  def self.delete(filename="default")
     GameManager.create_save_dir
-    path = "save/" + filename
+    path = "saves/" + filename
     Dir.delete(path) if Dir.exist? path
   end
 
   def self.create_save_dir
-    Dir.mkdir("saves") unless Dir.exists? "saves"
+    Dir.mkdir("saves") unless Dir.exist? "saves"
   end
 end
 
