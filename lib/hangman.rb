@@ -1,6 +1,3 @@
-# TASKS
-# - Get the object to properly parse into JSON
-
 require 'set'
 
 class GameManager
